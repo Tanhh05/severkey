@@ -2,15 +2,17 @@
 require_once 'auth.php';
 require_once 'config.php';
 
-function genKey($length = 16) {
-    return substr(str_shuffle(str_repeat($x='0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length/strlen($x)) )),1,$length);
+function genKey($randomLength = 8) {
+    $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $randomPart = substr(str_shuffle(str_repeat($chars, ceil($randomLength / strlen($chars)))), 1, $randomLength);
+    return 'NTAMOD-VIP' . $randomPart;
 }
 
 if (isset($_POST['create_key'])) {
     $project_id = intval($_POST['project_id']);
     $type = $_POST['type'];
     $max_devices = intval($_POST['max_devices']);
-    $token_code = genKey(16);
+    $token_code = genKey(8);
     $duration = 0;
     $expire_date = "NULL";
 
@@ -39,7 +41,19 @@ if (isset($_GET['reset_devices'])) {
     header("Location: key.php");
 }
 
-$keys = mysqli_query($conn, "SELECT t.*, p.name as pname FROM tbl_tokens t JOIN tbl_projects p ON t.project_id = p.id ORDER BY t.id DESC");
+// Cấu hình phân trang: 5 phần tử mỗi trang
+$limit = 5;
+$page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$offset = ($page - 1) * $limit;
+
+$totalQuery = mysqli_query($conn, "SELECT COUNT(*) as total FROM tbl_tokens");
+$totalRow = mysqli_fetch_assoc($totalQuery);
+$totalItems = $totalRow['total'];
+$totalPages = ceil($totalItems / $limit);
+if ($totalPages < 1) $totalPages = 1;
+if ($page > $totalPages) $page = $totalPages;
+
+$keys = mysqli_query($conn, "SELECT t.*, p.name as pname FROM tbl_tokens t JOIN tbl_projects p ON t.project_id = p.id ORDER BY t.id DESC LIMIT $limit OFFSET $offset");
 $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
 ?>
 <!DOCTYPE html>
@@ -158,6 +172,35 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
                     <?php endwhile; ?>
                 </tbody>
             </table>
+
+            <?php if ($totalPages > 1): ?>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                <div style="font-size: 13px; color: #7f8c8d;">
+                    Hiển thị <strong><?= min($offset + 1, $totalItems) ?> - <?= min($offset + $limit, $totalItems) ?></strong> trong tổng số <strong><?= $totalItems ?></strong> key (Trang <?= $page ?>/<?= $totalPages ?>)
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <?php if ($page > 1): ?>
+                        <a href="?page=1" class="btn btn-sm" style="background: #ecf0f1; color: #2c3e50;">&laquo; Đầu</a>
+                        <a href="?page=<?= $page - 1 ?>" class="btn btn-sm" style="background: #ecf0f1; color: #2c3e50;">&lsaquo; Trước</a>
+                    <?php endif; ?>
+
+                    <?php 
+                    $startPage = max(1, $page - 2);
+                    $endPage = min($totalPages, $page + 2);
+                    for ($i = $startPage; $i <= $endPage; $i++): 
+                    ?>
+                        <a href="?page=<?= $i ?>" class="btn btn-sm <?= ($i == $page) ? 'btn-primary' : '' ?>" style="<?= ($i != $page) ? 'background: #ecf0f1; color: #2c3e50;' : '' ?>">
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($page < $totalPages): ?>
+                        <a href="?page=<?= $page + 1 ?>" class="btn btn-sm" style="background: #ecf0f1; color: #2c3e50;">Sau &rsaquo;</a>
+                        <a href="?page=<?= $totalPages ?>" class="btn btn-sm" style="background: #ecf0f1; color: #2c3e50;">Cuối &raquo;</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 </body>
