@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 require_once 'config.php';
 $count_packages = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM tbl_projects"))['c'];
 $count_keys = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM tbl_tokens"))['c'];
@@ -17,6 +18,7 @@ $count_keys = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as c FROM 
             <a href="index.php" class="active">Dashboard</a>
             <a href="package.php">Quản lý Package</a>
             <a href="key.php">Quản lý Key</a>
+            <a href="auth.php?logout=1" style="color: #e74c3c; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
         </div>
     </div>
     <div class="main-content">

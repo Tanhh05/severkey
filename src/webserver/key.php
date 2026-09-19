@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 require_once 'config.php';
 
 function genKey($length = 16) {
@@ -49,6 +50,7 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
             <a href="index.php">Dashboard</a>
             <a href="package.php">Quản lý Package</a>
             <a href="key.php" class="active">Quản lý Key</a>
+            <a href="auth.php?logout=1" style="color: #e74c3c; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
         </div>
     </div>
     <div class="main-content">

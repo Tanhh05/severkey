@@ -1,4 +1,5 @@
 <?php
+require_once 'auth.php';
 require_once 'config.php';
 
 function genToken() {
@@ -43,6 +44,7 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects ORDER BY id DESC");
             <a href="index.php">Dashboard</a>
             <a href="package.php" class="active">Quản lý Package</a>
             <a href="key.php">Quản lý Key</a>
+            <a href="auth.php?logout=1" style="color: #e74c3c; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
         </div>
     </div>
     <div class="main-content">
