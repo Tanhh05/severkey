@@ -72,7 +72,10 @@ if ($action == 'check') {
         $data['expire_date'] = $newExpire;
     }
 
-    if ($data['expire_date'] < $now) {
+    $expireTimestamp = strtotime($data['expire_date']);
+    $currentTimestamp = strtotime($now);
+
+    if ($expireTimestamp <= $currentTimestamp) {
         echo json_encode([
             'status' => false, 
             'message' => 'Mã key đã hết hạn!', 
@@ -95,15 +98,15 @@ if ($action == 'check') {
         mysqli_query($conn, "INSERT INTO tbl_device_history (token_id, device_uuid) VALUES (" . $data['id'] . ", '$uuid')");
     }
 
-    $remaining = strtotime($data['expire_date']) - strtotime($now);
-    $daysLeft = floor($remaining / 86400);
+    $remaining = $expireTimestamp - $currentTimestamp;
+    $daysLeft = ceil($remaining / 86400);
     if ($daysLeft < 0) $daysLeft = 0;
 
     echo json_encode([
         'status' => true,
         'message' => 'Active',
         'expiry' => $data['expire_date'],
-        'days_left' => $daysLeft,
+        'days_left' => (int)$daysLeft,
         'contact' => $projectData['contact_link']
     ]);
     exit;

@@ -14,7 +14,9 @@ if (isset($_POST['create_key'])) {
     $expire_date = "NULL";
 
     if ($type == 'static') {
-        $expire_date = "'" . $_POST['static_date'] . "'";
+        $rawDate = trim($_POST['static_date']);
+        $formattedDate = date('Y-m-d H:i:s', strtotime($rawDate));
+        $expire_date = "'" . mysqli_real_escape_string($conn, $formattedDate) . "'";
     } else {
         $duration = intval($_POST['dynamic_days']);
     }
@@ -92,19 +94,33 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
                         <th>Package</th>
                         <th>Type</th>
                         <th>Expiry/Duration</th>
+                        <th>Status</th>
                         <th>Devices</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = mysqli_fetch_assoc($keys)): 
+                    <?php 
+                    $nowTimestamp = time();
+                    while ($row = mysqli_fetch_assoc($keys)): 
                         $used = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM tbl_device_history WHERE token_id=".$row['id']));
+                        $isExpired = false;
+                        if ($row['expire_date'] && strtotime($row['expire_date']) <= $nowTimestamp) {
+                            $isExpired = true;
+                        }
                     ?>
                     <tr>
                         <td><span class="code-box"><?= $row['token_code'] ?></span></td>
                         <td><?= htmlspecialchars($row['pname']) ?></td>
                         <td><?= $row['type'] ?></td>
                         <td><?= ($row['type'] == 'static') ? $row['expire_date'] : ($row['expire_date'] ? $row['expire_date'] : $row['duration'].' days (Pending)') ?></td>
+                        <td>
+                            <?php if ($isExpired): ?>
+                                <span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">Hết hạn</span>
+                            <?php else: ?>
+                                <span style="background: #2ecc71; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">Hoạt động</span>
+                            <?php endif; ?>
+                        </td>
                         <td><?= $used ?> / <?= $row['max_devices'] ?></td>
                         <td><a href="?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Xóa</a></td>
                     </tr>

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS tbl_device_history (
 
 -- Seed sample project and keys for immediate testing
 INSERT INTO tbl_projects (id, name, project_token, contact_link, is_maintenance) 
-VALUES (1, 'Free Fire Mod Menu', 'demo_token_123456', 'https://t.me/tanhh05', 0)
+VALUES (1, 'Free Fire Mod Menu', 'demo_token_123456', 'https://zalo.me/g/wgyxdes3oqxcxdu5gbxe', 0)
 ON DUPLICATE KEY UPDATE name=VALUES(name);
 
 INSERT INTO tbl_tokens (id, project_id, token_code, type, duration, expire_date, max_devices)
