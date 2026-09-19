@@ -28,7 +28,14 @@ if (isset($_POST['create_key'])) {
 
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
+    mysqli_query($conn, "DELETE FROM tbl_device_history WHERE token_id=$id");
     mysqli_query($conn, "DELETE FROM tbl_tokens WHERE id=$id");
+    header("Location: key.php");
+}
+
+if (isset($_GET['reset_devices'])) {
+    $id = intval($_GET['reset_devices']);
+    mysqli_query($conn, "DELETE FROM tbl_device_history WHERE token_id=$id");
     header("Location: key.php");
 }
 
@@ -98,6 +105,7 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
                         <th>Expiry/Duration</th>
                         <th>Status</th>
                         <th>Devices</th>
+                        <th>Android ID</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -105,7 +113,12 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
                     <?php 
                     $nowTimestamp = time();
                     while ($row = mysqli_fetch_assoc($keys)): 
-                        $used = mysqli_num_rows(mysqli_query($conn, "SELECT id FROM tbl_device_history WHERE token_id=".$row['id']));
+                        $devQuery = mysqli_query($conn, "SELECT device_uuid FROM tbl_device_history WHERE token_id=".$row['id']);
+                        $devicesList = [];
+                        while ($dev = mysqli_fetch_assoc($devQuery)) {
+                            $devicesList[] = $dev['device_uuid'];
+                        }
+                        $used = count($devicesList);
                         $isExpired = false;
                         if ($row['expire_date'] && strtotime($row['expire_date']) <= $nowTimestamp) {
                             $isExpired = true;
@@ -124,7 +137,23 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects");
                             <?php endif; ?>
                         </td>
                         <td><?= $used ?> / <?= $row['max_devices'] ?></td>
-                        <td><a href="?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger">Xóa</a></td>
+                        <td>
+                            <?php if (!empty($devicesList)): ?>
+                                <?php foreach ($devicesList as $devId): ?>
+                                    <span class="code-box" style="color: #2980b9; background: #ebf5fb; font-size: 11px; padding: 2px 6px; border-radius: 3px; display: inline-block; margin: 1px 0;" title="<?= htmlspecialchars($devId) ?>">
+                                        <?= htmlspecialchars($devId) ?>
+                                    </span><br>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <span style="color: #95a5a6; font-size: 11px; font-style: italic;">Chưa có</span>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php if ($used > 0): ?>
+                                <a href="?reset_devices=<?= $row['id'] ?>" class="btn btn-sm" style="background: #f39c12; color: white; margin-right: 4px;" onclick="return confirm('Bạn có chắc muốn Reset thiết bị cho key này?');">Reset Thiết Bị</a>
+                            <?php endif; ?>
+                            <a href="?delete=<?= $row['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa key này?');">Xóa</a>
+                        </td>
                     </tr>
                     <?php endwhile; ?>
                 </tbody>
