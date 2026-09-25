@@ -1,6 +1,7 @@
 <?php
 require_once 'auth.php';
 require_once 'config.php';
+requireAdmin();
 
 function genToken() {
     return bin2hex(random_bytes(16));
@@ -12,6 +13,7 @@ if (isset($_POST['add_project'])) {
     $token = genToken();
     mysqli_query($conn, "INSERT INTO tbl_projects (name, project_token, contact_link) VALUES ('$name', '$token', '$contact')");
     header("Location: package.php");
+    exit;
 }
 
 if (isset($_GET['toggle_maint'])) {
@@ -20,12 +22,14 @@ if (isset($_GET['toggle_maint'])) {
     $new = $current == 1 ? 0 : 1;
     mysqli_query($conn, "UPDATE tbl_projects SET is_maintenance=$new WHERE id=$id");
     header("Location: package.php");
+    exit;
 }
 
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     mysqli_query($conn, "DELETE FROM tbl_projects WHERE id=$id");
     header("Location: package.php");
+    exit;
 }
 
 $projects = mysqli_query($conn, "SELECT * FROM tbl_projects ORDER BY id DESC");
@@ -43,8 +47,10 @@ $projects = mysqli_query($conn, "SELECT * FROM tbl_projects ORDER BY id DESC");
         <div class="sidebar-menu">
             <a href="index.php">Dashboard</a>
             <a href="package.php" class="active">Quản lý Package</a>
+            <a href="agency.php">Quản lý Đại lý</a>
             <a href="key.php">Quản lý Key</a>
-            <a href="auth.php?logout=1" style="color: #e74c3c; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
+            <a href="package_keys.php">Key theo Package & Log</a>
+            <a href="auth.php?logout=1" style="color: #ef4444; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
         </div>
     </div>
     <div class="main-content">

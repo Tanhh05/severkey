@@ -70,6 +70,11 @@ if ($action == 'check') {
         $newExpire = date('Y-m-d H:i:s', strtotime("+$days days"));
         mysqli_query($conn, "UPDATE tbl_tokens SET expire_date = '$newExpire' WHERE id = " . $data['id']);
         $data['expire_date'] = $newExpire;
+    } else if ($data['type'] == 'dynamic_hours' && $data['expire_date'] == null) {
+        $hours = $data['duration'];
+        $newExpire = date('Y-m-d H:i:s', strtotime("+$hours hours"));
+        mysqli_query($conn, "UPDATE tbl_tokens SET expire_date = '$newExpire' WHERE id = " . $data['id']);
+        $data['expire_date'] = $newExpire;
     }
 
     $expireTimestamp = strtotime($data['expire_date']);

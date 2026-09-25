@@ -1,10 +1,18 @@
 function toggleType() {
     var type = document.getElementById('keyType').value;
-    if (type === 'static') {
-        document.getElementById('staticInput').style.display = 'block';
-        document.getElementById('dynamicInput').style.display = 'none';
-    } else {
-        document.getElementById('staticInput').style.display = 'none';
-        document.getElementById('dynamicInput').style.display = 'block';
+    var staticInput = document.getElementById('staticInput');
+    var dynamicInput = document.getElementById('dynamicInput');
+    var dynamicHoursInput = document.getElementById('dynamicHoursInput');
+
+    if (staticInput) staticInput.style.display = (type === 'static') ? 'block' : 'none';
+    if (dynamicInput) dynamicInput.style.display = (type === 'dynamic') ? 'block' : 'none';
+    if (dynamicHoursInput) dynamicHoursInput.style.display = (type === 'dynamic_hours') ? 'block' : 'none';
+}
+
+function toggleCustomHours() {
+    var select = document.getElementById('dynamicHoursSelect');
+    var customWrapper = document.getElementById('customHoursWrapper');
+    if (select && customWrapper) {
+        customWrapper.style.display = (select.value === 'custom') ? 'block' : 'none';
     }
 }
