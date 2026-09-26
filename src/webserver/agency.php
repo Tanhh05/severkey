@@ -266,6 +266,7 @@ $agenciesQuery = mysqli_query($conn, "SELECT * FROM tbl_users WHERE role='agency
             <a href="agency.php" class="active">Quản lý Đại lý</a>
             <a href="key.php">Quản lý Key</a>
             <a href="package_keys.php">Key theo Package & Log</a>
+            <a href="mod_files.php">📁 Quản lý File Mod</a>
             <a href="auth.php?logout=1" style="color: #ef4444; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
         </div>
     </div>

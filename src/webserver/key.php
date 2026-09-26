@@ -442,6 +442,7 @@ if (isAdmin()) {
                 <a href="agency.php">Quản lý Đại lý</a>
                 <a href="key.php" class="active">Quản lý Key</a>
                 <a href="package_keys.php">Key theo Package & Log</a>
+                <a href="mod_files.php">📁 Quản lý File Mod</a>
                 <a href="auth.php?logout=1" style="color: #ef4444; margin-top: 30px;">Đăng Xuất (<?= htmlspecialchars($_SESSION['auth_user']) ?>)</a>
             <?php else: ?>
                 <div style="padding: 12px 25px 5px; font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700;">
